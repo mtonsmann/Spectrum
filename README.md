@@ -29,4 +29,4 @@ From the cloned directory, make and run the program:
 
 <code>make</code>
 
-<code>./spectrum</code>
+<code>./spectrumTest</code>
