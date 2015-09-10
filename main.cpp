@@ -50,6 +50,7 @@ int main(int argc, char* argv[]) {
     // experimental:
     String compressCommand = "ffmpeg -i " + filename + " -loglevel quiet -s 640x360 -vcodec libx264 -ac 1 -b 64k -bt 64k -r " + resolution + " output.mp4";
     //"ffmpeg -i BobsBurgers.mp4 -s 640x360 -vcodec libx264 -ac 1 -b 64k -bt 64k -r 5 test.mp4"
+    cout << "ffmpeg is compressing..." << endl;
     system(compressCommand.c_str());
 
     VideoCapture cap("output.mp4"); // open the video file for reading
@@ -132,7 +133,7 @@ int main(int argc, char* argv[]) {
           return -1;
      }
 
-     system("rm test.mp4");
+     system("rm output.mp4");
 
      // Display avg color
      namedWindow("Total Average Color", CV_WINDOW_AUTOSIZE); //create a window with the name "MyWindow"
@@ -143,6 +144,7 @@ int main(int argc, char* argv[]) {
      imshow("Average Color Timeline", finalColorCloud);
 
      // Timing stats
+     // TODO: print from a method
      t = ((double)getTickCount() - t)/getTickFrequency();
      cout << "Time to calculate average: " << t << " s" << endl;
      cout << "frames: " << frames << endl;
