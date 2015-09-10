@@ -12,6 +12,7 @@
 
 ### OS X:
 <body>Using the Homebrew package manager: </body>
+
 <body>Install OpenCV
 
 <code>brew install opencv </code>
