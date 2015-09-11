@@ -38,7 +38,6 @@ int main(int argc, char* argv[]) {
     // Variables for color colorCloud
     int cloudCols = 50;
     Mat colorCloud(1, cloudCols, CV_8UC3, Scalar(0,0,0));
-    //queue<int> start;
 
     // get file from user
     // TODO: change this to getInfo()
@@ -49,7 +48,6 @@ int main(int argc, char* argv[]) {
 
     // experimental:
     String compressCommand = "ffmpeg -i " + filename + " -loglevel quiet -s 640x360 -vcodec libx264 -ac 1 -b 64k -bt 64k -r " + resolution + " output.mp4";
-    //"ffmpeg -i BobsBurgers.mp4 -s 640x360 -vcodec libx264 -ac 1 -b 64k -bt 64k -r 5 test.mp4"
     cout << "ffmpeg is compressing..." << endl;
     system(compressCommand.c_str());
 
@@ -60,13 +58,6 @@ int main(int argc, char* argv[]) {
          cout << "Cannot open the video file" << endl;
          return -1;
     }
-
-    //double fps = cap.get(CV_CAP_PROP_FPS); //get the frames per seconds of the video
-
-    //cout << "Frame per seconds : " << fps << endl;
-
-
-    //namedWindow("Video Color Test",CV_WINDOW_AUTOSIZE); //create a window called "MyVideo"
 
     double t = (double)getTickCount();
 
@@ -85,9 +76,6 @@ int main(int argc, char* argv[]) {
       t3 = ((double)getTickCount() - t3) / getTickFrequency();
       grabT.push_back(t3);
 
-      // only process if user wants to process it
-      // eg: if resolution = 20 then will only process every 20 frames
-
       Mat frame;
 
       // retrieve frame and get data to solve for avg time to retrieve
@@ -96,11 +84,6 @@ int main(int argc, char* argv[]) {
       t1 = ((double)getTickCount() - t1)/getTickFrequency();
       readT.push_back(t1);
 
-      //if not success, break loop
-      // if (!bSuccess) {
-      //   break;
-      // }
-
       // Get avg color and data to calculate total avg color
       // get data to solve for avg time to calc mean
       double t2 = (double)getTickCount();
@@ -108,11 +91,14 @@ int main(int argc, char* argv[]) {
       t2 = ((double)getTickCount() - t2)/getTickFrequency();
       meanT.push_back(t2);
       frameMeanTotal += frameMean;
+
       framesProccessed++;
-     // adds a single row of the avg color to the colorCloud
-     Mat row(1, cloudCols, CV_8UC3, frameMean);
-     colorCloud.push_back(row);
+
+      // adds a single row of the avg color to the colorCloud
+      Mat row(1, cloudCols, CV_8UC3, frameMean);
+      colorCloud.push_back(row);
     }
+
     cout << endl;
 
     // rotate and rescale colorCloud
@@ -133,6 +119,7 @@ int main(int argc, char* argv[]) {
           return -1;
      }
 
+     // remove the output created by ffmpeg
      system("rm output.mp4");
 
      // Display avg color
@@ -154,14 +141,21 @@ int main(int argc, char* argv[]) {
      cout << "avg t for mean: " << avg(meanT) << endl;
 
 
-     waitKey(0);  //wait infinite time for a keypress
+     char k = waitKey(0);  //wait infinite time for a keypress
 
-     destroyAllWindows(); //destroy all windows
+     if (k == 's') {
+       imwrite("ColorCloud.jpg", finalColorCloud);
+       imwrite("AverageColor.jpg", img);
+       destroyAllWindows();
+     } else if (k == 'q') {
+       destroyAllWindows(); //destroy all windows
+     }
 
     return 0;
 
 }
 
+// used to add scalars
 Scalar add(Scalar frameMean, Scalar frameMeanTotal) {
 
   for (int i = 0; i < 4; i++) {
@@ -171,6 +165,7 @@ Scalar add(Scalar frameMean, Scalar frameMeanTotal) {
   return frameMeanTotal;
 }
 
+// Used for dividing scalars
 Scalar div(Scalar frameMeanTotal, double framesProccessed) {
   Scalar scal;
 
@@ -181,6 +176,7 @@ Scalar div(Scalar frameMeanTotal, double framesProccessed) {
   return scal;
 }
 
+// returns the average number from a vector for printing
 string avg(Vector<double> vec) {
   double avg = 0;
   for (double i : vec) {
@@ -189,9 +185,9 @@ string avg(Vector<double> vec) {
   return to_string(avg / vec.size());
 }
 
+// Displays a progress bar for the OpenCV section
 void progressBar(float progress) {
   int barWidth = 70;
-
   cout << "[";
   int pos = barWidth * progress;
   for (int i = 0; i < barWidth; i++) {
