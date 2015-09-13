@@ -21,6 +21,10 @@ Install ffmpeg
 
 <code>brew install ffmpeg </code>
 
+Install boost
+
+<code>brew install boost</boost>
+
 Clone the repo (install git if you already haven't):
 
 <code>git clone https://github.com/mtonsmann/Spectrum.git Spectrum</code>

@@ -1,6 +1,6 @@
-//TODO: add use of progress bar for compression
 //TODO: CLEAN UP CODE
-//TODO: redisign menu options, add ability to save
+//TODO: allow a resolution smaller than 1
+//TODO: redisign menu options
 //TODO: create a new Scalar class? Review inheritance
 //TODO: at least overload some stuff to use add and div
 //TODO: avg pixel stuff
@@ -21,7 +21,7 @@ Scalar add(Scalar frameMean, Scalar frameMeanTotal);
 Scalar div(Scalar frameMeanTotal, double framesProccessed);
 string avg(Vector<double> vec);
 void progressBar(float progress);
-char getResolution();
+String getResolution();
 
 int main(int argc, char* argv[]) {
 
@@ -44,12 +44,14 @@ int main(int argc, char* argv[]) {
     cout << "filename: ";
     string filename = "";
     cin >> filename;
-    char resolution = getResolution();
+    String resolution = getResolution();
 
     // experimental:
     String compressCommand = "ffmpeg -i " + filename + " -loglevel quiet -s 640x360 -vcodec libx264 -ac 1 -b 64k -bt 64k -r " + resolution + " output.mp4";
     cout << "ffmpeg is compressing..." << endl;
+    double tcompress = (double)getTickCount();
     system(compressCommand.c_str());
+    tcompress = ((double)getTickCount() - tcompress)/getTickFrequency();
 
     VideoCapture cap("output.mp4"); // open the video file for reading
 
@@ -59,7 +61,7 @@ int main(int argc, char* argv[]) {
          return -1;
     }
 
-    double t = (double)getTickCount();
+    double taverage = (double)getTickCount();
 
     // Run until all frames have been read
     for (int i = 0; i < int(cap.get(CV_CAP_PROP_FRAME_COUNT)); i++) {
@@ -132,8 +134,9 @@ int main(int argc, char* argv[]) {
 
      // Timing stats
      // TODO: print from a method
-     t = ((double)getTickCount() - t)/getTickFrequency();
-     cout << "Time to calculate average: " << t << " s" << endl;
+     taverage = ((double)getTickCount() - taverage)/getTickFrequency();
+     cout << "Time to compress: " << tcompress << " s" << endl;
+     cout << "Time to calculate average: " << taverage << " s" << endl;
      cout << "frames: " << frames << endl;
      cout << "frames analyzed: " << framesProccessed << endl;
      cout << "avg t for grab: " << avg(grabT) << endl;
@@ -144,7 +147,10 @@ int main(int argc, char* argv[]) {
      char k = waitKey(0);  //wait infinite time for a keypress
 
      if (k == 's') {
-       imwrite("ColorCloud.jpg", finalColorCloud);
+       //TODO: clean up name output (no multiple filetypes)
+       String writeName = filename + "ColorCloud.jpg";
+       imwrite(writeName, finalColorCloud);
+       writeName = filename + "AverageColor.jpg";
        imwrite("AverageColor.jpg", img);
        destroyAllWindows();
      } else if (k == 'q') {
@@ -199,9 +205,9 @@ void progressBar(float progress) {
   cout.flush();
 }
 
-char getResolution() {
-  char x;
-  cout << "How many frames would you like to skip? ";
+String getResolution() {
+  String x;
+  cout << "Frames to analyze per second: ";
   cin >> x;
   return x;
 }
