@@ -142,6 +142,7 @@ int main(int argc, char* argv[]) {
      cout << "avg t for grab: " << avg(grabT) << endl;
      cout << "avg t for read: " << avg(readT) << endl;
      cout << "avg t for mean: " << avg(meanT) << endl;
+     cout << "\nTo save the output, press s when on the display window" << endl;
 
 
      char k = waitKey(0);  //wait infinite time for a keypress
