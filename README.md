@@ -8,7 +8,7 @@
 
 ## Installation
 
-<body>Currently I am only aware of how to run on OS X and Linux. The steps to do so are as follows: </body>
+<body>Currently I am only aware of how to run on OS X and Linux. The Linux steps should be very similar, but the steps to do so are as follows on OS X: </body>
 
 ### OS X:
 <body>Using the Homebrew package manager: </body>
