@@ -23,7 +23,7 @@ Install ffmpeg
 
 Install boost
 
-<code>brew install boost</boost>
+<code>brew install boost</code>
 
 Clone the repo (install git if you already haven't):
 
