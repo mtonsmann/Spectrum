@@ -1,5 +1,4 @@
 //TODO: CLEAN UP CODE
-//TODO: allow a resolution smaller than 1
 //TODO: redisign menu options
 //TODO: create a new Scalar class? Review inheritance
 //TODO: at least overload some stuff to use add and div
@@ -46,6 +45,11 @@ int main(int argc, char* argv[]) {
     cin >> filename;
     String resolution = getResolution();
 
+    // see if they want to view timing stats
+    cout << "View timing stats? (y/n) ";
+    String tStats;
+    cin >> tStats;
+
     // experimental:
     String compressCommand = "ffmpeg -i " + filename + " -loglevel quiet -s 640x360 -vcodec libx264 -ac 1 -b 64k -bt 64k -r " + resolution + " output.mp4";
     cout << "ffmpeg is compressing..." << endl;
@@ -73,6 +77,7 @@ int main(int argc, char* argv[]) {
       frames++;
 
       // look at but do not read the frame
+      // get data to solve for avg t
       double t3 = (double)getTickCount();
       cap.grab();
       t3 = ((double)getTickCount() - t3) / getTickFrequency();
@@ -81,6 +86,7 @@ int main(int argc, char* argv[]) {
       Mat frame;
 
       // retrieve frame and get data to solve for avg time to retrieve
+      // get data to solve for avg t
       double t1 = (double)getTickCount();
       cap.retrieve(frame);
       t1 = ((double)getTickCount() - t1)/getTickFrequency();
@@ -116,9 +122,9 @@ int main(int argc, char* argv[]) {
     Mat img(cap.get(CV_CAP_PROP_FRAME_HEIGHT), cap.get(CV_CAP_PROP_FRAME_WIDTH), CV_8UC3, avgColor);
 
     if (img.empty()) {
-          cout << "Error : Image cannot be loaded..!!" << endl;
-          //system("pause"); //wait for a key press
-          return -1;
+      cout << "Error : Image cannot be loaded..!!" << endl;
+      //system("pause"); //wait for a key press
+      return -1;
      }
 
      // remove the output created by ffmpeg
@@ -133,26 +139,29 @@ int main(int argc, char* argv[]) {
      imshow("Average Color Timeline", finalColorCloud);
 
      // Timing stats
-     // TODO: print from a method
+     // TODO: print from a function
      taverage = ((double)getTickCount() - taverage)/getTickFrequency();
-     cout << "Time to compress: " << tcompress << " s" << endl;
-     cout << "Time to calculate average: " << taverage << " s" << endl;
-     cout << "frames: " << frames << endl;
-     cout << "frames analyzed: " << framesProccessed << endl;
-     cout << "avg t for grab: " << avg(grabT) << endl;
-     cout << "avg t for read: " << avg(readT) << endl;
-     cout << "avg t for mean: " << avg(meanT) << endl;
+
+     if (tStats[0] == 'y' || tStats[0] == 'Y') {
+       cout << "Time to compress: " << tcompress << " s" << endl;
+       cout << "Time to calculate average: " << taverage << " s" << endl;
+       cout << "frames: " << frames << endl;
+       cout << "frames analyzed: " << framesProccessed << endl;
+       cout << "avg t for grab: " << avg(grabT) << endl;
+       cout << "avg t for read: " << avg(readT) << endl;
+       cout << "avg t for mean: " << avg(meanT) << endl;
+     }
      cout << "\nTo save the output, press s when on the display window" << endl;
 
 
      char k = waitKey(0);  //wait infinite time for a keypress
 
      if (k == 's') {
-       //TODO: clean up name output (no multiple filetypes)
+       filename = filename.substr(0, filename.length()-5);
        String writeName = filename + "ColorCloud.jpg";
        imwrite(writeName, finalColorCloud);
        writeName = filename + "AverageColor.jpg";
-       imwrite("AverageColor.jpg", img);
+       imwrite(writeName, img);
        destroyAllWindows();
      } else if (k == 'q') {
        destroyAllWindows(); //destroy all windows
@@ -208,7 +217,7 @@ void progressBar(float progress) {
 
 String getResolution() {
   String x;
-  cout << "Frames to analyze per second: ";
+  cout << "Frames to analyze per second (may be less than 1): ";
   cin >> x;
   return x;
 }
